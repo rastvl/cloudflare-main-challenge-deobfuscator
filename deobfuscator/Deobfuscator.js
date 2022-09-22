@@ -101,26 +101,44 @@ class Deobfuscator {
   }
 
   _getInnerArray(path, scopeData) {
-    path.scope.traverse(
-      path.scope.block,
-      {
-        CallExpression: (path_) => {
-          const node_ = path_.node;
-          if (
-            node_.callee &&
-            t.isMemberExpression(node_.callee) &&
-            !node_.callee.computed &&
-            t.isStringLiteral(node_.callee.object) &&
-            t.isIdentifier(node_.callee.property) &&
-            node_.callee.property.name === 'split'
-          ) {
-            const delimiter = node_.arguments[0].value;
-            scopeData.array = node_.callee.object.value.split(delimiter);
-            path_.stop();
-          }
-        },
-      }
-    );
+    path.scope.traverse(path.scope.block, {
+      CallExpression: (path_) => {
+        const node_ = path_.node;
+        if (
+          node_.callee &&
+          t.isMemberExpression(node_.callee) &&
+          !node_.callee.computed &&
+          t.isStringLiteral(node_.callee.object) &&
+          t.isIdentifier(node_.callee.property) &&
+          node_.callee.property.name === 'split'
+        ) {
+          const delimiter = node_.arguments[0].value;
+          scopeData.array = node_.callee.object.value.split(delimiter);
+          path_.stop();
+        }
+      },
+    });
+  }
+
+  _shuffleInnerArray(path, arrayIdentifierName, scopeData) {
+    let shuffleIndex;
+    path.scope.traverse(path.scope.block, {
+      CallExpression: (path_) => {
+        const node_ = path_.node;
+
+        if (
+          node_.arguments.length === SHUFFLE_ARRAY_FUNCTION_ARGS_LENGTH &&
+          t.isNumericLiteral(node_.arguments[1]) &&
+          t.isIdentifier(node_.arguments[0]) &&
+          node_.arguments[0].name === arrayIdentifierName
+        ) {
+          shuffleIndex = node_.arguments[1].value + 1;
+
+          // ShuffleArray
+          for (; --shuffleIndex; scopeData.array.push(scopeData.array.shift()));
+        }
+      },
+    });
   }
 
   _replaceInnerString() {
@@ -175,62 +193,17 @@ class Deobfuscator {
             array: [],
             arrayIndexOffset: 0,
             getString(index) {
-              return this.array[index + this.arrayIndexOffset]
-            }
+              return this.array[index + this.arrayIndexOffset];
+            },
           };
 
           // Need to find the string and the delimiter.
           // All this is in the scope along with bindingAssignmentPath
-          // bindingAssignmentPath.scope.traverse(
-          //   bindingAssignmentPath.scope.block,
-          //   {
-          //     CallExpression: (path_) => {
-          //       const node_ = path_.node;
-          //       if (
-          //         node_.callee &&
-          //         t.isMemberExpression(node_.callee) &&
-          //         !node_.callee.computed &&
-          //         t.isStringLiteral(node_.callee.object) &&
-          //         t.isIdentifier(node_.callee.property) &&
-          //         node_.callee.property.name === 'split'
-          //       ) {
-          //         const delimiter = node_.arguments[0].value;
-          //         scopeData.array = node_.callee.object.value.split(delimiter);
-          //         path_.stop();
-          //       }
-          //     },
-          //   }
-          // );
           this._getInnerArray(bindingAssignmentPath, scopeData);
 
           // We need to shuffle our array
           // To do this we need to find the shuffle index
-          let shuffleIndex;
-          bindingAssignmentPath.scope.traverse(
-            bindingAssignmentPath.scope.block,
-            {
-              CallExpression: (path_) => {
-                const node_ = path_.node;
-
-                if (
-                  node_.arguments.length ===
-                    SHUFFLE_ARRAY_FUNCTION_ARGS_LENGTH &&
-                  t.isNumericLiteral(node_.arguments[1]) &&
-                  t.isIdentifier(node_.arguments[0]) &&
-                  node_.arguments[0].name === arrayIdentifierName
-                ) {
-                  shuffleIndex = node_.arguments[1].value + 1;
-
-                  // ShuffleArray
-                  for (
-                    ;
-                    --shuffleIndex;
-                    scopeData.array.push(scopeData.array.shift())
-                  );
-                }
-              },
-            }
-          );
+          this._shuffleInnerArray(bindingAssignmentPath, arrayIdentifierName, scopeData);
 
           // console.log(scopeData.array);
           scopeIdToArray.set(path.scope.uid, scopeData);
@@ -239,7 +212,6 @@ class Deobfuscator {
               scopeData.getString(parseInt(node.arguments[0].value, 16))
             )
           );
-          // path.stop();
         }
       },
     });
