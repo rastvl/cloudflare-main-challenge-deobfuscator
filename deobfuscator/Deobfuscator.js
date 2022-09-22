@@ -100,18 +100,40 @@ class Deobfuscator {
     return resultPath;
   }
 
+  _getInnerArray(path, scopeData) {
+    path.scope.traverse(
+      path.scope.block,
+      {
+        CallExpression: (path_) => {
+          const node_ = path_.node;
+          if (
+            node_.callee &&
+            t.isMemberExpression(node_.callee) &&
+            !node_.callee.computed &&
+            t.isStringLiteral(node_.callee.object) &&
+            t.isIdentifier(node_.callee.property) &&
+            node_.callee.property.name === 'split'
+          ) {
+            const delimiter = node_.arguments[0].value;
+            scopeData.array = node_.callee.object.value.split(delimiter);
+            path_.stop();
+          }
+        },
+      }
+    );
+  }
+
   _replaceInnerString() {
     const scopeIdToArray = new Map();
     const a = performance.now();
 
     traverse(this._ast, {
-      MemberExpression: (path) => {
+      CallExpression: (path) => {
         const { node } = path;
         if (
-          t.isCallExpression(node.property) &&
-          node.property.arguments.length === 1 &&
-          t.isStringLiteral(node.property.arguments[0]) &&
-          node.property.arguments[0].value.startsWith('0x')
+          node.arguments.length === 1 &&
+          t.isStringLiteral(node.arguments[0]) &&
+          node.arguments[0].value.startsWith('0x')
         ) {
           // There is no explicit reference to the original array in the script.
           // Instead, it refers to a function that returns the array element by index,
@@ -119,25 +141,16 @@ class Deobfuscator {
           // then figure out what array it works with, take that array, shuffle it,
           // and only then replace all the strings
           if (scopeIdToArray.has(path.scope.uid)) {
-            // Взять структуру по ключу
             const scopeData = scopeIdToArray.get(path.scope.uid);
-            // path.replaceWith(
-            //   t.stringLiteral(scopeData.array[parseInt(node.property.arguments[0].value)])
-            // );
-            console.log(scopeData.array[parseInt(node.property.arguments[0].value)])
             path.replaceWith(
-              t.MemberExpression(
-                t.identifier(node.object.name),
-                // t.stringLiteral(scopeData.array[parseInt(node.property.arguments[0].value)])
-                t.identifier(scopeData.array[parseInt(node.property.arguments[0].value)]),
-                false
+              t.stringLiteral(
+                scopeData.getString(parseInt(node.arguments[0].value, 16))
               )
             );
-            // return;
           }
 
           // Get the function name
-          const bindingFunctionName = node.property.callee.name;
+          const bindingFunctionName = node.callee.name;
 
           // Finding a binding of "getStringFromArray" function
           const bindingFunctionScope = path.scope;
@@ -161,33 +174,34 @@ class Deobfuscator {
           const scopeData = {
             array: [],
             arrayIndexOffset: 0,
-            getString: (index) => {
-              return this.array[index + this.arrayIndexOffset];
-            },
+            getString(index) {
+              return this.array[index + this.arrayIndexOffset]
+            }
           };
 
           // Need to find the string and the delimiter.
           // All this is in the scope along with bindingAssignmentPath
-          bindingAssignmentPath.scope.traverse(
-            bindingAssignmentPath.scope.block,
-            {
-              CallExpression: (path_) => {
-                const node_ = path_.node;
-                if (
-                  node_.callee &&
-                  t.isMemberExpression(node_.callee) &&
-                  !node_.callee.computed &&
-                  t.isStringLiteral(node_.callee.object) &&
-                  t.isIdentifier(node_.callee.property) &&
-                  node_.callee.property.name === 'split'
-                ) {
-                  const delimiter = node_.arguments[0].value;
-                  scopeData.array = node_.callee.object.value.split(delimiter);
-                  path_.stop();
-                }
-              },
-            }
-          );
+          // bindingAssignmentPath.scope.traverse(
+          //   bindingAssignmentPath.scope.block,
+          //   {
+          //     CallExpression: (path_) => {
+          //       const node_ = path_.node;
+          //       if (
+          //         node_.callee &&
+          //         t.isMemberExpression(node_.callee) &&
+          //         !node_.callee.computed &&
+          //         t.isStringLiteral(node_.callee.object) &&
+          //         t.isIdentifier(node_.callee.property) &&
+          //         node_.callee.property.name === 'split'
+          //       ) {
+          //         const delimiter = node_.arguments[0].value;
+          //         scopeData.array = node_.callee.object.value.split(delimiter);
+          //         path_.stop();
+          //       }
+          //     },
+          //   }
+          // );
+          this._getInnerArray(bindingAssignmentPath, scopeData);
 
           // We need to shuffle our array
           // To do this we need to find the shuffle index
@@ -205,7 +219,7 @@ class Deobfuscator {
                   t.isIdentifier(node_.arguments[0]) &&
                   node_.arguments[0].name === arrayIdentifierName
                 ) {
-                  shuffleIndex = node_.arguments[1].value;
+                  shuffleIndex = node_.arguments[1].value + 1;
 
                   // ShuffleArray
                   for (
@@ -220,7 +234,11 @@ class Deobfuscator {
 
           // console.log(scopeData.array);
           scopeIdToArray.set(path.scope.uid, scopeData);
-
+          path.replaceWith(
+            t.stringLiteral(
+              scopeData.getString(parseInt(node.arguments[0].value, 16))
+            )
+          );
           // path.stop();
         }
       },
