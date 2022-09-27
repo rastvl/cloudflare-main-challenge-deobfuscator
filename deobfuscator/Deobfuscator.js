@@ -31,6 +31,7 @@ class Deobfuscator {
     this._replaceStrings();
     this._test();
     this._getProxyFunctions();
+    this._getProxyFunctions();
     return generate(this._ast).code;
   }
 
@@ -235,20 +236,16 @@ class Deobfuscator {
         if (
           t.isFunctionExpression(node.right) &&
           t.isMemberExpression(node.left) &&
-          node.left.property.value && // <<<<<<<<<<<< надо чето сделать. Заменить шоле там ниже. Может св-во через точку прописано
+          (node.left.property.value || node.left.property.name) &&
           node.right.body.body.length === 1 &&
           t.isReturnStatement(node.right.body.body[0]) &&
           (t.isBinaryExpression(node.right.body.body[0].argument) ||
             t.isCallExpression(node.right.body.body[0].argument))
         ) {
-          // console.log('fdgfygdugyuyu')
-          // console.log(node.left.property.value)
           const proxyFnIdentifier = node.left.object.name;
           const proxyFnBinding = path.scope.getBinding(proxyFnIdentifier);
 
-          const key = `${node.left.object.name}_${node.left.property.value}`;
-
-          // keyToBinding.set(key, proxyFnBinding);
+          const key = `${node.left.object.name}_${node.left.property.value || node.left.property.name}`;
 
           if (scopeIdToBinaryOpPath[proxyFnBinding.scope.uid]) {
             scopeIdToBinaryOpPath[proxyFnBinding.scope.uid].set(
@@ -271,7 +268,7 @@ class Deobfuscator {
               const refBinding = refPath.scope.getBinding(
                 refPath.parentPath.node.left.name
               );
-              const key = `${refPath.parentPath.node.left.name}_${node.left.property.value}`;
+              const key = `${refPath.parentPath.node.left.name}_${node.left.property.value || node.left.property.name}`;
               // if (bindingToKey.has(refBinding)) return;
               // keyToBinding.set(key, refBinding);
               scopeIdToBinaryOpPath[refBinding.scope.uid].set(
@@ -315,7 +312,11 @@ class Deobfuscator {
               node.arguments[1]
             )
           );
+        } else if (t.isCallExpression(binaryOpPath)) {
+
         }
+
+
       },
     });
   }
