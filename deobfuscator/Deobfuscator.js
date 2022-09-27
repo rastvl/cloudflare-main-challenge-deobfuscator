@@ -245,7 +245,9 @@ class Deobfuscator {
           const proxyFnIdentifier = node.left.object.name;
           const proxyFnBinding = path.scope.getBinding(proxyFnIdentifier);
 
-          const key = `${node.left.object.name}_${node.left.property.value || node.left.property.name}`;
+          const key = `${node.left.object.name}_${
+            node.left.property.value || node.left.property.name
+          }`;
 
           if (scopeIdToBinaryOpPath[proxyFnBinding.scope.uid]) {
             scopeIdToBinaryOpPath[proxyFnBinding.scope.uid].set(
@@ -268,7 +270,9 @@ class Deobfuscator {
               const refBinding = refPath.scope.getBinding(
                 refPath.parentPath.node.left.name
               );
-              const key = `${refPath.parentPath.node.left.name}_${node.left.property.value || node.left.property.name}`;
+              const key = `${refPath.parentPath.node.left.name}_${
+                node.left.property.value || node.left.property.name
+              }`;
               // if (bindingToKey.has(refBinding)) return;
               // keyToBinding.set(key, refBinding);
               scopeIdToBinaryOpPath[refBinding.scope.uid].set(
@@ -313,10 +317,12 @@ class Deobfuscator {
             )
           );
         } else if (t.isCallExpression(binaryOpPath)) {
-
+          path.replaceWith(
+            t.CallExpression(node.arguments[0], [
+              ...node.arguments.filter((el, ix) => ix != 0),
+            ])
+          );
         }
-
-
       },
     });
   }
