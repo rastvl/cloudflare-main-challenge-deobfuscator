@@ -11,11 +11,11 @@ const {
 var console_log = console.log;
 let counter = 1;
 console.log = function (args) {
+  console_log.apply(this, arguments);
   console_log(
     '==========================================================================================================================',
     counter
   );
-  console_log.apply(this, arguments);
   ++counter;
 };
 
@@ -29,6 +29,8 @@ class Deobfuscator {
 
   deobfuscate() {
     this._replaceStrings();
+    this._test();
+    this._getProxyFunctions();
     return generate(this._ast).code;
   }
 
@@ -143,7 +145,7 @@ class Deobfuscator {
 
   _replaceInnerString() {
     const scopeIdToArray = new Map();
-    const a = performance.now();
+    // const a = performance.now();
 
     traverse(this._ast, {
       CallExpression: (path) => {
@@ -203,9 +205,12 @@ class Deobfuscator {
 
           // We need to shuffle our array
           // To do this we need to find the shuffle index
-          this._shuffleInnerArray(bindingAssignmentPath, arrayIdentifierName, scopeData);
+          this._shuffleInnerArray(
+            bindingAssignmentPath,
+            arrayIdentifierName,
+            scopeData
+          );
 
-          // console.log(scopeData.array);
           scopeIdToArray.set(path.scope.uid, scopeData);
           path.replaceWith(
             t.stringLiteral(
@@ -215,7 +220,125 @@ class Deobfuscator {
         }
       },
     });
-    console.log(performance.now() - a);
+    // console.log(performance.now() - a);
+  }
+
+  _getProxyFunctions() {
+    const a = performance.now();
+    const scopeIdToBinaryOpPath = {};
+    // const keyToBinding = new Map();
+    traverse(this._ast, {
+      AssignmentExpression: (path) => {
+        const { node } = path;
+
+        // Proxy function
+        if (
+          t.isFunctionExpression(node.right) &&
+          t.isMemberExpression(node.left) &&
+          node.left.property.value && // <<<<<<<<<<<< надо чето сделать. Заменить шоле там ниже. Может св-во через точку прописано
+          node.right.body.body.length === 1 &&
+          t.isReturnStatement(node.right.body.body[0]) &&
+          (t.isBinaryExpression(node.right.body.body[0].argument) ||
+            t.isCallExpression(node.right.body.body[0].argument))
+        ) {
+          // console.log('fdgfygdugyuyu')
+          // console.log(node.left.property.value)
+          const proxyFnIdentifier = node.left.object.name;
+          const proxyFnBinding = path.scope.getBinding(proxyFnIdentifier);
+
+          const key = `${node.left.object.name}_${node.left.property.value}`;
+
+          // keyToBinding.set(key, proxyFnBinding);
+
+          if (scopeIdToBinaryOpPath[proxyFnBinding.scope.uid]) {
+            scopeIdToBinaryOpPath[proxyFnBinding.scope.uid].set(
+              key,
+              node.right.body.body[0].argument
+            );
+          } else {
+            scopeIdToBinaryOpPath[proxyFnBinding.scope.uid] = new Map();
+            scopeIdToBinaryOpPath[proxyFnBinding.scope.uid].set(
+              key,
+              node.right.body.body[0].argument
+            );
+          }
+
+          proxyFnBinding.referencePaths.forEach((refPath) => {
+            if (
+              t.isAssignmentExpression(refPath.parentPath.node) &&
+              t.isIdentifier(refPath.parentPath.node.left)
+            ) {
+              const refBinding = refPath.scope.getBinding(
+                refPath.parentPath.node.left.name
+              );
+              const key = `${refPath.parentPath.node.left.name}_${node.left.property.value}`;
+              // if (bindingToKey.has(refBinding)) return;
+              // keyToBinding.set(key, refBinding);
+              scopeIdToBinaryOpPath[refBinding.scope.uid].set(
+                key,
+                node.right.body.body[0].argument
+              );
+            }
+          });
+        }
+      },
+    });
+
+    traverse(this._ast, {
+      CallExpression: (path) => {
+        const { node } = path;
+
+        if (!t.isMemberExpression(node.callee)) return;
+
+        const bindingName = node.callee.object.name || node.callee.object.value;
+        const binding = path.scope.getBinding(bindingName);
+        if (!binding) return;
+
+        const bindingScopeId = binding.scope.uid;
+        if (!bindingScopeId) return;
+
+        if (!scopeIdToBinaryOpPath[bindingScopeId]) return;
+
+        const bindingPropName =
+          node.callee.property.value || node.callee.property.name;
+        const key = `${bindingName}_${bindingPropName}`;
+
+        // console.log(scopeIdToBinaryOpPath[bindingScopeId].get(key));
+
+        const binaryOpPath = scopeIdToBinaryOpPath[bindingScopeId].get(key);
+
+        if (t.isBinaryExpression(binaryOpPath)) {
+          path.replaceWith(
+            t.binaryExpression(
+              binaryOpPath.operator,
+              node.arguments[0],
+              node.arguments[1]
+            )
+          );
+        }
+      },
+    });
+  }
+
+  _simplifyProxyFunctionsCalls() {}
+
+  _test() {
+    traverse(this._ast, {
+      MemberExpression: (path) => {
+        if (path.node.property.name === 'CAVHW') {
+          // console.log(path.scope.getBinding('n').scope.uid);
+          // console.log(Object.getOwnPropertyNames(path.scope.getBinding('m')));
+
+          // const binding = path.scope.getBinding('m');
+
+          // binding.referencePaths.forEach((refPath) => {
+          //   if (t.isAssignmentExpression(refPath.parentPath.node))
+          //     console.log(refPath.parentPath.node);
+          // });
+          path.stop();
+        }
+      },
+    });
   }
 }
 

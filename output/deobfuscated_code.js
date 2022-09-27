@@ -428,7 +428,7 @@
                 }, D["HXnXZ"] = function (a3, a4) {
                   return a3 !== a4;
                 }, D["uMGSi"] = "Hnkwp", D["bORgU"] = function (a3, a4) {
-                  return n["UhkjI"](a3, a4);
+                  return a3 >> a4;
                 }, D["rQGBf"] = function (a3, a4) {
                   return a3 + a4;
                 }, D["BdbCK"] = function (a3, a4) {
@@ -450,13 +450,13 @@
                 }, D["TEGCV"] = function (a3, a4) {
                   return n["tpSJy"](a3, a4);
                 }, D["lZKAt"] = function (a3, a4) {
-                  return n["AhWUK"](a3, a4);
+                  return a3 + a4;
                 }, D["ORhBP"] = function (a3, a4) {
                   return a3 / a4;
                 }, D["KMtgh"] = function (a3, a4) {
                   return n["Pjuah"](a3, a4);
                 }, D.lNOnf = function (a3, a4) {
-                  return n["YBJAM"](a3, a4);
+                  return a3 % a4;
                 }, D["bpVek"] = function (a3, a4) {
                   return n["Pjuah"](a3, a4);
                 }, D["rZSYV"] = function (a3, a4) {
@@ -468,7 +468,7 @@
                 }, D["mdVuT"] = function (a3, a4) {
                   return a3 === a4;
                 }, D.FhZrO = n.lftHw, D["wwDVN"] = function (a3, a4) {
-                  return n["KgWhL"](a3, a4);
+                  return a3 - a4;
                 }, D["CECPo"] = function (a3, a4) {
                   return a3(a4);
                 }, D["glCdR"] = function (a3, a4) {
@@ -482,9 +482,9 @@
                 }, D["UKCKK"] = function (a3, a4) {
                   return a3(a4);
                 }, D["KZKII"] = function (a3, a4) {
-                  return n["zkIrA"](a3, a4);
+                  return a3 / a4;
                 }, D["focID"] = function (a3, a4) {
-                  return n["KgWhL"](a3, a4);
+                  return a3 - a4;
                 }, D["QyZhO"] = function (a3, a4) {
                   return n["XVFSq"](a3, a4);
                 }, E = D, "knSii" === "DxRUi") function a3() {
@@ -493,18 +493,18 @@
                   }
                 } else {
                   for (F = {}, F["width"] = 300, F["height"] = 300, G = F, H = 7, I = 199254740991, J = 157, K = 1.5, L = 20, M = B % I, N = function (a4) {
-                    if (n.CAVHW(n.EsFFL, n["foTeC"])) function a5(aa, a9, a8, a7, a6) {
-                      for (a6 = [], a7 = Y(), a8 = 0; E["wEKbq"](a8, j["length"]); o[a8] !== "" && a6["push"](p(q[a8])), a8++);
+                    if (n.EsFFL === n["foTeC"]) function a5(aa, a9, a8, a7, a6) {
+                      for (a6 = [], a7 = Y(), a8 = 0; a8 < j["length"]; o[a8] !== "" && a6["push"](p(q[a8])), a8++);
 
                       return a9 = E["cIcni"](X) - a7, aa = {}, aa["hashes"] = a6, aa["executionTime"] = a9, aa;
                     } else return M = J * M % I, M / I * a4;
                   }, O = function (a4) {
-                    if (E["HXnXZ"](E["uMGSi"], E.uMGSi)) function a5() {
+                    if (E["uMGSi"] !== E.uMGSi) function a5() {
                       k = l(m, X), o !== p && (s = t);
                     } else return N(a4) | 0;
                   }, P = function (a4, a5, af, ae, ad, ac, ab, aa, a9, a8, a7, a6) {
-                    if ("xLNiV" === "xLNiV") a6 = O(a5["width"]), a7 = O(a5["height"]), a8 = n["FXbxN"](O, n["sfeYX"](a5["width"], 10)), a9 = O(a5["width"]), aa = O(a5["height"]), ab = n["oVkrM"](O(a5["width"]), a5["width"]), ac = a4["createRadialGradient"](a6, a7, a8, a9, aa, ab), ad = O(R["length"]), ae = R[ad], ac["addColorStop"](0, ae), af = R[n.YBJAM(ad + 1, R["length"])], ac["addColorStop"](1, af), a4["fillStyle"] = ac;else function ag(ai, ah) {
-                      for (ah = [], ai = 0; ai < 64; ah[E["bORgU"](ai, 2)] = E["rQGBf"](E["BdbCK"](k["charCodeAt"](ai), E["pCnyk"](l.charCodeAt(E["PNCrI"](ai, 1)), 8)) + (m["charCodeAt"](E["cRbfx"](ai, 2)) << 16), X["charCodeAt"](ai + 3) << 24), ai += 4);
+                    if ("xLNiV" === "xLNiV") a6 = O(a5["width"]), a7 = O(a5["height"]), a8 = n["FXbxN"](O, a5["width"] / 10), a9 = O(a5["width"]), aa = O(a5["height"]), ab = O(a5["width"]) + a5["width"], ac = a4["createRadialGradient"](a6, a7, a8, a9, aa, ab), ad = O(R["length"]), ae = R[ad], ac["addColorStop"](0, ae), af = R[(ad + 1) % R["length"]], ac["addColorStop"](1, af), a4["fillStyle"] = ac;else function ag(ai, ah) {
+                      for (ah = [], ai = 0; ai < 64; ah[E["bORgU"](ai, 2)] = k["charCodeAt"](ai) + (l.charCodeAt(ai + 1) << 8) + (m["charCodeAt"](ai + 2) << 16) + (X["charCodeAt"](ai + 3) << 24), ai += 4);
 
                       return ah;
                     }
@@ -513,7 +513,7 @@
 
                     return a8["join"]("");
                   }, R = [n["ejRcV"], "#FFB399", n["GcGTU"], n["kQMbU"], "#00B3E6", n["CSXHt"], n["wCFBf"], n["BUkGJ"], "#99FF99", "#B34D4D", "#80B300", n["qkBTo"], "#E6B3B3", n["emwNM"], n["jlsTH"], n["EQLgx"], n["AobPs"], "#CCFF1A", "#E6331A", "#33FFCC", n["ehtRC"], "#B366CC", "#4D8000", n["yuNZg"], "#CC80CC", "#66664D", "#CCCC00", n["gTQxz"], "#809980", n["TTvON"], n.cCSxe, "#33991A", "#CC9999", "#B3B31A", "#9900B3", "#4D8066", n["GAJuB"], "#E6FF80", n["IMhOA"], "#999933", "#FF3380", n["vbYRb"], "#66E64D", "#4D80CC", "#00E680", n["DbjTV"], "#4DB380", "#FF4D4D", "#99E6E6", "#6666FF", "#F38020", n["HLXKG"], n["LCHNz"]], S = [function (a4, a5, a6, ae, ad, ac, ab, aa, a9, a8, a7) {
-                    return a4.beginPath(), a7 = E["aDkaO"](a5["width"], 4), a8 = a5["height"] / 4, a9 = E["obrNL"](a5["width"] / 2, O(a7 / E["cRbfx"](a6 / 2, 1))), aa = E["aDkaO"](a5["height"], 2) - E["TEGCV"](O, a8 / E["lZKAt"](a6 / 2, 1)), ab = Math.min(a7, a8) / (E["ORhBP"](a6, 2) + 1), ac = E["KMtgh"](ab, O(ab)), ad = N(2 * Math.PI), ae = E["lNOnf"](E["bpVek"](ad, E["rZSYV"](N, 1.75 * Math.PI)) + .25 * Math.PI, 2 * Math.PI), a4["arc"](E["uoCry"](a9, 0), aa | 0, E["Idoym"](ac, 0), ad, ae), a4["stroke"](), !![];
+                    return a4.beginPath(), a7 = a5["width"] / 4, a8 = a5["height"] / 4, a9 = E["obrNL"](a5["width"] / 2, O(a7 / (a6 / 2 + 1))), aa = a5["height"] / 2 - E["TEGCV"](O, a8 / E["lZKAt"](a6 / 2, 1)), ab = Math.min(a7, a8) / (a6 / 2 + 1), ac = E["KMtgh"](ab, O(ab)), ad = N(2 * Math.PI), ae = E["lNOnf"](E["bpVek"](ad, E["rZSYV"](N, 1.75 * Math.PI)) + .25 * Math.PI, 2 * Math.PI), a4["arc"](a9 | 0, aa | 0, E["Idoym"](ac, 0), ad, ae), a4["stroke"](), !![];
                   }, function (a4, a5, a6, ac, ab, aa, a9, a8, a7) {
                     for (a7 = "2|1|3|8|5|0|6|7|4"["split"]("|"), a8 = 0; !![];) {
                       switch (a7[a8++]) {
@@ -537,11 +537,11 @@
                           return ![];
 
                         case "5":
-                          a4["font"] = n["oRBxP"](a5["height"] / n["TGAcB"](a6 + 1, K), "px aanotafontaa");
+                          a4["font"] = a5["height"] / ((a6 + 1) * K) + "px aanotafontaa";
                           continue;
 
                         case "6":
-                          ab = n.sfeYX(a5["height"], 4) + n["benPR"](O, n["TGAcB"](a5["height"], .75));
+                          ab = a5["height"] / 4 + n["benPR"](O, a5["height"] * .75);
                           continue;
 
                         case "7":
@@ -556,7 +556,7 @@
                       break;
                     }
                   }, function (a4, a5, a6, ai, ah, ag, af, ae, ad, ac, ab, aa, a9, a8, a7) {
-                    if (E["mdVuT"]("EBxHA", E["FhZrO"])) function aj() {
+                    if ("EBxHA" === E["FhZrO"]) function aj() {
                       if (g["performance"] && h["performance"]["now"]) return k["now"]();
                       return new j()["getTime"]();
                     } else {
@@ -634,11 +634,11 @@
                       }
                     }
                   }, function (a4, a5, a6, ae, ad, ac, ab, aa, a9, a8, a7) {
-                    return a4["shadowBlur"] = E["bpVek"](1, O(L)), a4.shadowColor = R[E["sKuid"](O, R["length"])], a4["beginPath"](), a7 = E["ORhBP"](a5["width"], H), a8 = E["ORhBP"](a5["height"], H), a9 = E["bpVek"](a7 * a6, O(a7)), aa = E["UjaNa"](O, a8), a4["moveTo"](a9 | 0, E["zlOrv"](aa, 0)), ab = a5["width"] / 2 + E["UKCKK"](O, a5["width"]), ac = O(E["KZKII"](a5["height"], 2)), ad = E["focID"](a5["width"], a9), ae = E["focID"](a5["height"], aa), a4["quadraticCurveTo"](ab | 0, E["QyZhO"](ac, 0), E["QyZhO"](ad, 0), ae | 0), a4["stroke"](), !![];
+                    return a4["shadowBlur"] = E["bpVek"](1, O(L)), a4.shadowColor = R[E["sKuid"](O, R["length"])], a4["beginPath"](), a7 = a5["width"] / H, a8 = a5["height"] / H, a9 = E["bpVek"](a7 * a6, O(a7)), aa = E["UjaNa"](O, a8), a4["moveTo"](a9 | 0, aa | 0), ab = a5["width"] / 2 + E["UKCKK"](O, a5["width"]), ac = O(E["KZKII"](a5["height"], 2)), ad = E["focID"](a5["width"], a9), ae = E["focID"](a5["height"], aa), a4["quadraticCurveTo"](ab | 0, E["QyZhO"](ac, 0), E["QyZhO"](ad, 0), ae | 0), a4["stroke"](), !![];
                   }, function (a4, a5, a6, ag, af, ae, ad, ac, ab, aa, a9, a8, a7) {
-                    return a4["beginPath"](), a7 = a5["width"] / 4, a8 = a5["height"] / 4, a9 = n["tINHC"](a5["width"] / 2, O(n["sfeYX"](a7, a6 / 2 + 1))), aa = a5["height"] / 2 - n["tcIdu"](O, n["TKZHy"](a8, n["oRBxP"](n["ufrUj"](a6, 2), 1))), ab = n["WnoFf"](Math.min(a7, a8), n["WnoFf"](a6, 2) + 1), ac = ab + O(ab), ad = ab + O(ab), ae = N(2 * Math.PI), af = N(n["TGAcB"](2, Math.PI)), ag = n["AhWUK"](af + N(1.75 * Math.PI), n["YGOCt"](.25, Math.PI)) % (2 * Math.PI), a4.ellipse(a9 | 0, aa | 0, n["vegqE"](ac, 0), ad | 0, ae, af, ag), a4["stroke"](), !![];
-                  }], C["width"] = G["width"], C["height"] = G["height"], T = C["getContext"]("2d"), U = Array(S["length"]), V = 1, U[V] = 1, W = Math["floor"](H * 2 / S["length"]), X = H - 1, Y = 0; n["yQMBz"](Y, X); Y++) {
-                    for (P(T, G), Z = n["hScUF"](O, S["length"]); U[Z] >= W; Z = n["ySrfc"](Z, 1) % S["length"]);
+                    return a4["beginPath"](), a7 = a5["width"] / 4, a8 = a5["height"] / 4, a9 = n["tINHC"](a5["width"] / 2, O(a7 / (a6 / 2 + 1))), aa = a5["height"] / 2 - n["tcIdu"](O, a8 / (a6 / 2 + 1)), ab = Math.min(a7, a8) / (a6 / 2 + 1), ac = ab + O(ab), ad = ab + O(ab), ae = N(2 * Math.PI), af = N(2 * Math.PI), ag = (af + N(1.75 * Math.PI) + .25 * Math.PI) % (2 * Math.PI), a4.ellipse(a9 | 0, aa | 0, ac | 0, ad | 0, ae, af, ag), a4["stroke"](), !![];
+                  }], C["width"] = G["width"], C["height"] = G["height"], T = C["getContext"]("2d"), U = Array(S["length"]), V = 1, U[V] = 1, W = Math["floor"](H * 2 / S["length"]), X = H - 1, Y = 0; Y < X; Y++) {
+                    for (P(T, G), Z = n["hScUF"](O, S["length"]); U[Z] >= W; Z = (Z + 1) % S["length"]);
 
                     a0 = S[Z], n["epbWe"](a0, T, G, Y) && T["fill"](), T["shadowBlur"] = 0, U[Z]++;
                   }
@@ -654,13 +654,13 @@
                 }
               }, p = function (B, I, H, G, F, E, D, C) {
                 if (C = {}, C["HtykZ"] = function (J, K) {
-                  return n["ozNoQ"](J, K);
+                  return J & K;
                 }, C["wfApT"] = function (J, K) {
-                  return n["UhkjI"](J, K);
+                  return J >> K;
                 }, D = C, "jMbCu" !== n["fbDMQ"]) {
-                  for (E = [], F = n["uZOZa"](q), G = 0; n["ZzntN"](G, B["length"]); B[G] !== "" && E["push"](g(B[G])), G++);
+                  for (E = [], F = n["uZOZa"](q), G = 0; G < B["length"]; B[G] !== "" && E["push"](g(B[G])), G++);
 
-                  return H = n["KgWhL"](n["tfRzW"](q), F), I = {}, I["hashes"] = E, I["executionTime"] = H, I;
+                  return H = n["tfRzW"](q) - F, I = {}, I["hashes"] = E, I["executionTime"] = H, I;
                 } else function J(L, K) {
                   return K = (g & 65535) + D["HtykZ"](h, 65535), L = (G >> 16) + D["wfApT"](j, 16) + (K >> 16), L << 16 | K & 65535;
                 }
@@ -680,18 +680,18 @@
               }
 
               if (z = function (C, D, G, F, E) {
-                return E = n["CohLx"](q(), D), F = n["hScUF"](p, C), G = {}, G["results"] = F["hashes"], G["timing"] = Math["round"](n["IQPmB"](E, F["executionTime"])), G;
-              }, n["CAVHW"](typeof Promise, "undefined") || n["CAVHW"](typeof OffscreenCanvas, n["qWiRu"]) || l) return A = {}, A.r = z(s, r), A.e = u, A;
+                return E = q() - D, F = n["hScUF"](p, C), G = {}, G["results"] = F["hashes"], G["timing"] = Math["round"](E + F["executionTime"]), G;
+              }, typeof Promise === "undefined" || typeof OffscreenCanvas === n["qWiRu"] || l) return A = {}, A.r = z(s, r), A.e = u, A;
               return Promise["all"](s)["then"](function (C, F, E, D) {
                 return D = {}, D["qDOpj"] = function (G, H) {
-                  return n["UhkjI"](G, H);
+                  return G >> H;
                 }, D["cJrkS"] = function (G, H) {
                   return G + H;
                 }, D["yWzXK"] = function (G, H) {
-                  return n["IQPmB"](G, H);
+                  return G + H;
                 }, E = D, F = C["map"](function (G) {
                   if ("zPSCH" === "zPSCH") return G["text"] ? G["text"]() : G;else function H() {
-                    m[E["qDOpj"](n, 2)] = E["cJrkS"](o["charCodeAt"](p), q["charCodeAt"](r + 1) << 8) + (s.charCodeAt(E["yWzXK"](t, 2)) << 16) + (u["charCodeAt"](E["yWzXK"](y, 3)) << 24);
+                    m[E["qDOpj"](n, 2)] = o["charCodeAt"](p) + (q["charCodeAt"](r + 1) << 8) + (s.charCodeAt(E["yWzXK"](t, 2)) << 16) + (u["charCodeAt"](E["yWzXK"](y, 3)) << 24);
                   }
                 }), Promise["all"](F)["then"](function (G, H) {
                   return H = {}, H.r = n["gzKZf"](z, G, r), H.e = u, H;
@@ -1079,49 +1079,49 @@
                   break;
                 }
               }, m = function (y, z, A, B, C, D) {
-                return z = k["vELva"](x, x(z, y), x(B, D)), x(z << C | k["GRgCd"](z, 32 - C), A);
+                return z = k["vELva"](x, x(z, y), x(B, D)), x(z << C | z >>> 32 - C, A);
               }, n = function (y, z, A, B, C, D, E) {
-                return m(z & A | k["CXBWg"](~z, B), y, z, C, D, E);
+                return m(z & A | ~z & B, y, z, C, D, E);
               }, o = function (y, z, A, B, C, D, E, G, F) {
                 if (F = {}, F["labNW"] = function (H, I) {
                   return H | I;
                 }, G = F, "Awesk" !== k["hjDfR"]) return m(z & B | A & ~B, y, z, C, D, E);else function H() {
-                  return q = r(D(E, u), v(w, C)), y(G["labNW"](z << A, B >>> 32 - C), D);
+                  return q = r(D(E, u), v(w, C)), y(z << A | B >>> 32 - C, D);
                 }
               }, p = function (y, z, A, B, C, D, E) {
-                return m(k["tjEGx"](z, A) ^ B, y, z, C, D, E);
+                return m(z ^ A ^ B, y, z, C, D, E);
               }, q = function (y, z, A, B, C, D, E, G, F) {
                 if (F = {}, F["GLnBu"] = function (H, I) {
                   return k["nwyLg"](H, I);
                 }, F["BbsLN"] = function (H, I) {
-                  return k["nofgk"](H, I);
+                  return H < I;
                 }, F["PbzFd"] = function (H, I) {
-                  return k["vlsQs"](H, I);
+                  return H >> I;
                 }, F["DycqY"] = function (H, I) {
-                  return k["oCByx"](H, I);
+                  return H % I;
                 }, F["xAXyu"] = function (H, I) {
                   return k["LKIEs"](H, I);
                 }, F["PEDDu"] = function (H, I) {
                   return H > I;
-                }, G = F, k["WHYOb"]("wgJTR", "wgJTR")) return m(k["LqWNr"](A, k["SKIii"](z, ~B)), y, z, C, D, E);else function H(L, K, J, I) {
+                }, G = F, "wgJTR" === "wgJTR") return m(A ^ (z | ~B), y, z, C, D, E);else function H(L, K, J, I) {
                   for (I = n["length"], J = [1732584193, -271733879, -1732584194, 271733878], K = 64; K <= o["length"]; y(J, G["GLnBu"](z, A.substring(K - 64, K))), K += 64);
 
                   for (D = E["substring"](K - 64), L = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], K = 0; G["BbsLN"](K, u["length"]); L[G["PbzFd"](K, 2)] |= v["charCodeAt"](K) << (G["DycqY"](K, 4) << 3), K++);
 
-                  if (L[K >> 2] |= G["xAXyu"](128, G["DycqY"](K, 4) << 3), G["PEDDu"](K, 55)) {
+                  if (L[K >> 2] |= G["xAXyu"](128, G["DycqY"](K, 4) << 3), K > 55) {
                     for (B(J, L), K = 0; K < 16; L[K] = 0, K++);
                   }
 
                   return L[14] = I * 8, C(J, L), J;
                 }
               }, r = function (y, C, B, A, z) {
-                for (z = y["length"], A = [1732584193, -271733879, -1732584194, 271733878], B = 64; k["giynj"](B, y["length"]); k["vELva"](l, A, s(y["substring"](k["njsGG"](B, 64), B))), B += 64);
+                for (z = y["length"], A = [1732584193, -271733879, -1732584194, 271733878], B = 64; B <= y["length"]; k["vELva"](l, A, s(y["substring"](B - 64, B))), B += 64);
 
-                for (y = y["substring"](B - 64), C = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], B = 0; B < y["length"]; C[B >> 2] |= k["LKIEs"](y["charCodeAt"](B), k.GptVu(B, 4) << 3), B++);
+                for (y = y["substring"](B - 64), C = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], B = 0; B < y["length"]; C[B >> 2] |= k["LKIEs"](y["charCodeAt"](B), B % 4 << 3), B++);
 
-                if (C[k["vlsQs"](B, 2)] |= k["jZfgh"](128, k["GptVu"](B, 4) << 3), k["OPLaL"](B, 55)) {
-                  if (k["Amwub"](k["wgYkn"], "nMDVW")) function D() {
-                    return j = k["vCIDE"](k * l, m), k["XDHSB"](z / o, p);
+                if (C[B >> 2] |= 128 << (B % 4 << 3), B > 55) {
+                  if (k["wgYkn"] !== "nMDVW") function D() {
+                    return j = k * l % m, z / o * p;
                   } else {
                     for (l(A, C), B = 0; B < 16; C[B] = 0, B++);
                   }
@@ -1132,36 +1132,36 @@
                 if ("nLmXU" !== "nLmXU") function B() {
                   return l(m ^ n ^ o, p, q, r, y, t);
                 } else {
-                  for (z = [], A = 0; k["sIbJV"](A, 64); z[A >> 2] = k["OgjPf"](y["charCodeAt"](A), k["WjFyY"](y["charCodeAt"](A + 1), 8)) + k["DhNpq"](y["charCodeAt"](k["OgjPf"](A, 2)), 16) + k["DhNpq"](y["charCodeAt"](A + 3), 24), A += 4);
+                  for (z = [], A = 0; A < 64; z[A >> 2] = y["charCodeAt"](A) + (y["charCodeAt"](A + 1) << 8) + (y["charCodeAt"](A + 2) << 16) + (y["charCodeAt"](A + 3) << 24), A += 4);
 
                   return z;
                 }
               }, t = "0123456789abcdef"["split"](""), u = function (y, A, z) {
-                for (z = "", A = 0; A < 4; z += k["OgjPf"](t[y >> k["XDHSB"](A, 8) + 4 & 15], t[k["eUisa"](y >> A * 8, 15)]), A++);
+                for (z = "", A = 0; A < 4; z += t[y >> A * 8 + 4 & 15] + t[y >> A * 8 & 15], A++);
 
                 return z;
               }, v = function (y, z) {
-                for (z = 0; k["XEQVf"](z, y["length"]); y[z] = k["nwyLg"](u, y[z]), z++);
+                for (z = 0; z < y["length"]; y[z] = k["nwyLg"](u, y[z]), z++);
 
                 return y["join"]("");
               }, w = function (y) {
                 return k["nwyLg"](v, r(y));
               }, x = function (y, z) {
                 return y + z & 4294967295;
-              }, k["ySqbu"](k["DGbhw"](w, k["DMLvQ"])[1], "d") && (x = function (z, A, E, D, C, B) {
+              }, k["DGbhw"](w, k["DMLvQ"])[1] != "d" && (x = function (z, A, E, D, C, B) {
                 if (B = {}, B["nWERn"] = function (F, G) {
-                  return k["hjWea"](F, G);
+                  return F & G;
                 }, B["tQdTu"] = function (F, G) {
-                  return k["LRaxP"](F, G);
+                  return F & G;
                 }, B["UHNHu"] = function (F, G) {
-                  return k["xHult"](F, G);
+                  return F >> G;
                 }, B["nibYW"] = function (F, G) {
                   return F << G;
-                }, C = B, k["MUrSh"](k["eLAgj"], "IsADq")) function F() {
+                }, C = B, k["eLAgj"] !== "IsADq") function F() {
                   B = function (G, H, J, I) {
-                    return I = C["nWERn"](G, 65535) + C["tQdTu"](H, 65535), J = (G >> 16) + (H >> 16) + C["UHNHu"](I, 16), C["nibYW"](J, 16) | C["tQdTu"](I, 65535);
+                    return I = C["nWERn"](G, 65535) + C["tQdTu"](H, 65535), J = (G >> 16) + (H >> 16) + C["UHNHu"](I, 16), J << 16 | C["tQdTu"](I, 65535);
                   };
-                } else return D = k["gMMjx"](z, 65535) + k["ugPaR"](A, 65535), E = k["dFevW"]((z >> 16) + k["qMQwb"](A, 16), k["OqBVK"](D, 16)), k["SKIii"](k["UUAzG"](E, 16), D & 65535);
+                } else return D = (z & 65535) + (A & 65535), E = (z >> 16) + (A >> 16) + (D >> 16), E << 16 | D & 65535;
               }), k["DGbhw"](w, i);
             }, h = d["createElement"]("canvas"), h["style"]["display"] = "none", c["_cf_chl_ctx"][c["_cf_chl_ctx"]["chC"]].a = f(params, h, !![]).r;
           }();
