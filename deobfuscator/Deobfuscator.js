@@ -36,6 +36,8 @@ class Deobfuscator {
     this._replaceObjectConstants();
     this._replaceObjectConstants();
 
+    this._transformLogicalBranches();
+
     return generate(this._ast).code;
   }
 
@@ -430,6 +432,37 @@ class Deobfuscator {
             break;
           default:
             break;
+        }
+      },
+    });
+  }
+
+  _transformLogicalBranches() {
+    traverse(this._ast, {
+      'ConditionalExpression|IfStatement': (path) => {
+        const { node } = path;
+        let { consequent } = node;
+        let { alternate } = node;
+
+        let testNodePath = path.get('test');
+        const testNodeResult = testNodePath.evaluateTruthy();
+
+        if (testNodeResult === undefined) return;
+
+        if (testNodeResult === true) {
+          if (t.isBlockStatement(consequent)) {
+            consequent = consequent.body;
+          }
+          path.replaceWithMultiple(consequent);
+        } else {
+          if (alternate != null) {
+            if (t.isBlockStatement(alternate)) {
+              alternate = alternate.body;
+            }
+            path.replaceWithMultiple(alternate);
+          } else {
+            path.remove();
+          }
         }
       },
     });
