@@ -467,7 +467,7 @@
                   return a3 | a4;
                 }, D["mdVuT"] = function (a3, a4) {
                   return a3 === a4;
-                }, D.FhZrO = n.lftHw, D["wwDVN"] = function (a3, a4) {
+                }, D.FhZrO = "KGnGv", D["wwDVN"] = function (a3, a4) {
                   return a3 - a4;
                 }, D["CECPo"] = function (a3, a4) {
                   return a3(a4);
@@ -488,18 +488,18 @@
                 }, D["QyZhO"] = function (a3, a4) {
                   return a3 | a4;
                 }, E = D, "knSii" === "DxRUi") function a3() {
-                  if (j = k instanceof l, !m && !X["CanvasRenderingContext2D"]) return n["hVZfU"];else {
-                    if (o && !p["OffscreenCanvasRenderingContext2D"]) return n["hVZfU"];
+                  if (j = k instanceof l, !m && !X["CanvasRenderingContext2D"]) return "unknown";else {
+                    if (o && !p["OffscreenCanvasRenderingContext2D"]) return "unknown";
                   }
                 } else {
                   for (F = {}, F["width"] = 300, F["height"] = 300, G = F, H = 7, I = 199254740991, J = 157, K = 1.5, L = 20, M = B % I, N = function (a4) {
-                    if (n.EsFFL === n["foTeC"]) function a5(aa, a9, a8, a7, a6) {
+                    if ("GMBDx" === "gjvYj") function a5(aa, a9, a8, a7, a6) {
                       for (a6 = [], a7 = Y(), a8 = 0; a8 < j["length"]; o[a8] !== "" && a6["push"](p(q[a8])), a8++);
 
                       return a9 = E["cIcni"](X) - a7, aa = {}, aa["hashes"] = a6, aa["executionTime"] = a9, aa;
                     } else return M = J * M % I, M / I * a4;
                   }, O = function (a4) {
-                    if (E["uMGSi"] !== E.uMGSi) function a5() {
+                    if ("Hnkwp" !== "Hnkwp") function a5() {
                       k = l(m, X), o !== p && (s = t);
                     } else return N(a4) | 0;
                   }, P = function (a4, a5, af, ae, ad, ac, ab, aa, a9, a8, a7, a6) {
@@ -512,7 +512,7 @@
                     for (a5 = 33, a6 = 126, a7 = a6 - a5, a8 = [], a9 = 0; a9 < a4; aa = a5 + E["Ucyrh"](O, a7), a8["push"](String["fromCharCode"](aa)), a9++);
 
                     return a8["join"]("");
-                  }, R = [n["ejRcV"], "#FFB399", n["GcGTU"], n["kQMbU"], "#00B3E6", n["CSXHt"], n["wCFBf"], n["BUkGJ"], "#99FF99", "#B34D4D", "#80B300", n["qkBTo"], "#E6B3B3", n["emwNM"], n["jlsTH"], n["EQLgx"], n["AobPs"], "#CCFF1A", "#E6331A", "#33FFCC", n["ehtRC"], "#B366CC", "#4D8000", n["yuNZg"], "#CC80CC", "#66664D", "#CCCC00", n["gTQxz"], "#809980", n["TTvON"], n.cCSxe, "#33991A", "#CC9999", "#B3B31A", "#9900B3", "#4D8066", n["GAJuB"], "#E6FF80", n["IMhOA"], "#999933", "#FF3380", n["vbYRb"], "#66E64D", "#4D80CC", "#00E680", n["DbjTV"], "#4DB380", "#FF4D4D", "#99E6E6", "#6666FF", "#F38020", n["HLXKG"], n["LCHNz"]], S = [function (a4, a5, a6, ae, ad, ac, ab, aa, a9, a8, a7) {
+                  }, R = ["#FF6633", "#FFB399", "#FF33FF", "#FFFF99", "#00B3E6", "#E6B333", "#3366E6", "#999966", "#99FF99", "#B34D4D", "#80B300", "#FAAE40", "#E6B3B3", "#6680B3", "#66991A", "#FF99E6", "#FF1A66", "#CCFF1A", "#E6331A", "#33FFCC", "#66994D", "#B366CC", "#4D8000", "#B33300", "#CC80CC", "#66664D", "#CCCC00", "#E666FF", "#809980", "#1AB399", "#E666B3", "#33991A", "#CC9999", "#B3B31A", "#9900B3", "#4D8066", "#4DB3FF", "#E6FF80", "#1AFF33", "#999933", "#FF3380", "#991AFF", "#66E64D", "#4D80CC", "#00E680", "#E64D66", "#4DB380", "#FF4D4D", "#99E6E6", "#6666FF", "#F38020", "#809900", "#404041"], S = [function (a4, a5, a6, ae, ad, ac, ab, aa, a9, a8, a7) {
                     return a4.beginPath(), a7 = a5["width"] / 4, a8 = a5["height"] / 4, a9 = a5["width"] / 2 - O(a7 / (a6 / 2 + 1)), aa = a5["height"] / 2 - E["TEGCV"](O, a8 / (a6 / 2 + 1)), ab = Math.min(a7, a8) / (a6 / 2 + 1), ac = ab + O(ab), ad = N(2 * Math.PI), ae = (ad + E["rZSYV"](N, 1.75 * Math.PI) + .25 * Math.PI) % (2 * Math.PI), a4["arc"](a9 | 0, aa | 0, ac | 0, ad, ae), a4["stroke"](), !![];
                   }, function (a4, a5, a6, ac, ab, aa, a9, a8, a7) {
                     for (a7 = "2|1|3|8|5|0|6|7|4"["split"]("|"), a8 = 0; !![];) {
@@ -556,7 +556,7 @@
                       break;
                     }
                   }, function (a4, a5, a6, ai, ah, ag, af, ae, ad, ac, ab, aa, a9, a8, a7) {
-                    if ("EBxHA" === E["FhZrO"]) function aj() {
+                    if ("EBxHA" === "KGnGv") function aj() {
                       if (g["performance"] && h["performance"]["now"]) return k["now"]();
                       return new j()["getTime"]();
                     } else {
@@ -637,19 +637,19 @@
                     return a4["shadowBlur"] = 1 + O(L), a4.shadowColor = R[E["sKuid"](O, R["length"])], a4["beginPath"](), a7 = a5["width"] / H, a8 = a5["height"] / H, a9 = a7 * a6 + O(a7), aa = E["UjaNa"](O, a8), a4["moveTo"](a9 | 0, aa | 0), ab = a5["width"] / 2 + E["UKCKK"](O, a5["width"]), ac = O(a5["height"] / 2), ad = a5["width"] - a9, ae = a5["height"] - aa, a4["quadraticCurveTo"](ab | 0, ac | 0, ad | 0, ae | 0), a4["stroke"](), !![];
                   }, function (a4, a5, a6, ag, af, ae, ad, ac, ab, aa, a9, a8, a7) {
                     return a4["beginPath"](), a7 = a5["width"] / 4, a8 = a5["height"] / 4, a9 = a5["width"] / 2 - O(a7 / (a6 / 2 + 1)), aa = a5["height"] / 2 - n["tcIdu"](O, a8 / (a6 / 2 + 1)), ab = Math.min(a7, a8) / (a6 / 2 + 1), ac = ab + O(ab), ad = ab + O(ab), ae = N(2 * Math.PI), af = N(2 * Math.PI), ag = (af + N(1.75 * Math.PI) + .25 * Math.PI) % (2 * Math.PI), a4.ellipse(a9 | 0, aa | 0, ac | 0, ad | 0, ae, af, ag), a4["stroke"](), !![];
-                  }], C["width"] = G["width"], C["height"] = G["height"], T = C["getContext"]("2d"), U = Array(S["length"]), V = 1, U[V] = 1, W = Math["floor"](H * 2 / S["length"]), X = H - 1, Y = 0; Y < X; Y++) {
+                  }], C["width"] = 300, C["height"] = 300, T = C["getContext"]("2d"), U = Array(S["length"]), V = 1, U[V] = 1, W = Math["floor"](H * 2 / S["length"]), X = H - 1, Y = 0; Y < X; Y++) {
                     for (P(T, G), Z = n["hScUF"](O, S["length"]); U[Z] >= W; Z = (Z + 1) % S["length"]);
 
                     a0 = S[Z], n["epbWe"](a0, T, G, Y) && T["fill"](), T["shadowBlur"] = 0, U[Z]++;
                   }
 
-                  if (S[V](T, G, X), a1 = ![], typeof OffscreenCanvas !== n.qWiRu) {
-                    if (a1 = C instanceof OffscreenCanvas, !a1 && !e["CanvasRenderingContext2D"]) return n["hVZfU"];else {
-                      if (a1 && !e["OffscreenCanvasRenderingContext2D"]) return n["hVZfU"];
+                  if (S[V](T, G, X), a1 = ![], typeof OffscreenCanvas !== "undefined") {
+                    if (a1 = C instanceof OffscreenCanvas, !a1 && !e["CanvasRenderingContext2D"]) return "unknown";else {
+                      if (a1 && !e["OffscreenCanvasRenderingContext2D"]) return "unknown";
                     }
                   }
 
-                  if (a1) return a2 = C[C["convertToBlob"] ? n.UFAxA : "toBlob"](), a2;
+                  if (a1) return a2 = C[C["convertToBlob"] ? "convertToBlob" : "toBlob"](), a2;
                   return C["toDataURL"]();
                 }
               }, p = function (B, I, H, G, F, E, D, C) {
@@ -657,7 +657,7 @@
                   return J & K;
                 }, C["wfApT"] = function (J, K) {
                   return J >> K;
-                }, D = C, "jMbCu" !== n["fbDMQ"]) {
+                }, D = C, "jMbCu" !== "PHnFL") {
                   for (E = [], F = n["uZOZa"](q), G = 0; G < B["length"]; B[G] !== "" && E["push"](g(B[G])), G++);
 
                   return H = n["tfRzW"](q) - F, I = {}, I["hashes"] = E, I["executionTime"] = H, I;
@@ -681,7 +681,7 @@
 
               if (z = function (C, D, G, F, E) {
                 return E = q() - D, F = n["hScUF"](p, C), G = {}, G["results"] = F["hashes"], G["timing"] = Math["round"](E + F["executionTime"]), G;
-              }, typeof Promise === "undefined" || typeof OffscreenCanvas === n["qWiRu"] || l) return A = {}, A.r = z(s, r), A.e = u, A;
+              }, typeof Promise === "undefined" || typeof OffscreenCanvas === "undefined" || l) return A = {}, A.r = z(s, r), A.e = u, A;
               return Promise["all"](s)["then"](function (C, F, E, D) {
                 return D = {}, D["qDOpj"] = function (G, H) {
                   return G >> H;
@@ -1085,7 +1085,7 @@
               }, o = function (y, z, A, B, C, D, E, G, F) {
                 if (F = {}, F["labNW"] = function (H, I) {
                   return H | I;
-                }, G = F, "Awesk" !== k["hjDfR"]) return m(z & B | A & ~B, y, z, C, D, E);else function H() {
+                }, G = F, "Awesk" !== "qrBjF") return m(z & B | A & ~B, y, z, C, D, E);else function H() {
                   return q = r(D(E, u), v(w, C)), y(z << A | B >>> 32 - C, D);
                 }
               }, p = function (y, z, A, B, C, D, E) {
@@ -1120,7 +1120,7 @@
                 for (y = y["substring"](B - 64), C = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], B = 0; B < y["length"]; C[B >> 2] |= y["charCodeAt"](B) << (B % 4 << 3), B++);
 
                 if (C[B >> 2] |= 128 << (B % 4 << 3), B > 55) {
-                  if (k["wgYkn"] !== "nMDVW") function D() {
+                  if ("nMDVW" !== "nMDVW") function D() {
                     return j = k * l % m, z / o * p;
                   } else {
                     for (l(A, C), B = 0; B < 16; C[B] = 0, B++);
@@ -1148,7 +1148,7 @@
                 return k["nwyLg"](v, r(y));
               }, x = function (y, z) {
                 return y + z & 4294967295;
-              }, k["DGbhw"](w, k["DMLvQ"])[1] != "d" && (x = function (z, A, E, D, C, B) {
+              }, k["DGbhw"](w, "hello")[1] != "d" && (x = function (z, A, E, D, C, B) {
                 if (B = {}, B["nWERn"] = function (F, G) {
                   return F & G;
                 }, B["tQdTu"] = function (F, G) {
@@ -1157,7 +1157,7 @@
                   return F >> G;
                 }, B["nibYW"] = function (F, G) {
                   return F << G;
-                }, C = B, k["eLAgj"] !== "IsADq") function F() {
+                }, C = B, "IsADq" !== "IsADq") function F() {
                   B = function (G, H, J, I) {
                     return I = (G & 65535) + (H & 65535), J = (G >> 16) + (H >> 16) + (I >> 16), J << 16 | I & 65535;
                   };

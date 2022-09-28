@@ -29,9 +29,13 @@ class Deobfuscator {
 
   deobfuscate() {
     this._replaceStrings();
+
     this._replaceProxyFunctions();
     this._replaceProxyFunctions();
-    // this._replaceObjectConstants();
+
+    this._replaceObjectConstants();
+    this._replaceObjectConstants();
+
     return generate(this._ast).code;
   }
 
@@ -402,9 +406,11 @@ class Deobfuscator {
         const bindingPropName =
           node.property.value || node.property.name;
         const key = `${bindingName}_${bindingPropName}`;
-        console.log(bindingPropName, t.isLVal(node))
+
         const constantValue = scopeIdToConstants[bindingScopeId].get(key);
         if (!constantValue) return;
+
+        if (t.isAssignmentExpression(node.parent) && node.parent.left === node) return;
 
         // It's terrible hack... Sorry...
         // But the replaceWith method knows better
@@ -420,7 +426,7 @@ class Deobfuscator {
               path.replaceWith(t.numericLiteral(constantValue));
               break;
           }
-        } catch(e) {}
+        } catch(e) { console.log(e.message)}
 
       }
     })
