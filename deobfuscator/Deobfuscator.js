@@ -342,7 +342,11 @@ class Deobfuscator {
       AssignmentExpression: (path) => {
         const { node } = path;
 
-        if (t.isMemberExpression(node.left) && t.isLiteral(node.right) && node.left.object) {
+        if (
+          t.isMemberExpression(node.left) &&
+          t.isLiteral(node.right) &&
+          node.left.object
+        ) {
           const constantIdentifier = node.left.object.name;
           if (!constantIdentifier) return;
 
@@ -384,14 +388,22 @@ class Deobfuscator {
               );
             }
           });
-
         }
       },
     });
 
     traverse(this._ast, {
-      MemberExpression: path => {
+      MemberExpression: (path) => {
         const { node } = path;
+
+        // Can't replace lvalue
+        if (
+          t.isAssignmentExpression(path.parentPath.node) &&
+          path.parentPath.node.left === node
+        ) {
+          return;
+        }
+
         if (!node.object) return;
 
         const bindingName = node.object.name;
@@ -403,33 +415,24 @@ class Deobfuscator {
         const bindingScopeId = binding.scope.uid;
         if (!bindingScopeId || !scopeIdToConstants[bindingScopeId]) return;
 
-        const bindingPropName =
-          node.property.value || node.property.name;
+        const bindingPropName = node.property.value || node.property.name;
         const key = `${bindingName}_${bindingPropName}`;
 
         const constantValue = scopeIdToConstants[bindingScopeId].get(key);
         if (!constantValue) return;
 
-        if (t.isAssignmentExpression(node.parent) && node.parent.left === node) return;
-
-        // It's terrible hack... Sorry...
-        // But the replaceWith method knows better
-        // which nodes can be replaced and which can't.
-        // (Much depends on the value category(lvalue/rvalue).
-        // Checking it yourself is too much trouble)
-        try {
-          switch(typeof constantValue) {
-            case 'string':
-              path.replaceWith(t.stringLiteral(constantValue));
-              break;
-            case 'number':
-              path.replaceWith(t.numericLiteral(constantValue));
-              break;
-          }
-        } catch(e) { console.log(e.message)}
-
-      }
-    })
+        switch (typeof constantValue) {
+          case 'string':
+            path.replaceWith(t.stringLiteral(constantValue));
+            break;
+          case 'number':
+            path.replaceWith(t.numericLiteral(constantValue));
+            break;
+          default:
+            break;
+        }
+      },
+    });
   }
 }
 
