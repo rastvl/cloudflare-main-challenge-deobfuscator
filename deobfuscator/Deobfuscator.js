@@ -2,6 +2,7 @@ const parser = require('@babel/parser');
 const traverse = require('@babel/traverse').default;
 const generate = require('@babel/generator').default;
 const t = require('@babel/types');
+const vm = require('node:vm');
 
 const {
   MAIN_ARRAY_NAME,
@@ -24,14 +25,13 @@ class Deobfuscator {
     this._code = sourceCode;
     this._ast = parser.parse(sourceCode);
     this._mainArray = [];
-    // this._replaceStrings();
   }
 
   deobfuscate() {
     this._replaceStrings();
-    this._test();
-    this._getProxyFunctions();
-    this._getProxyFunctions();
+    this._replaceProxyFunctions();
+    this._replaceProxyFunctions();
+    // this._replaceObjectConstants();
     return generate(this._ast).code;
   }
 
@@ -146,7 +146,6 @@ class Deobfuscator {
 
   _replaceInnerString() {
     const scopeIdToArray = new Map();
-    // const a = performance.now();
 
     traverse(this._ast, {
       CallExpression: (path) => {
@@ -221,13 +220,11 @@ class Deobfuscator {
         }
       },
     });
-    // console.log(performance.now() - a);
   }
 
-  _getProxyFunctions() {
-    const a = performance.now();
+  _replaceProxyFunctions() {
     const scopeIdToBinaryOpPath = {};
-    // const keyToBinding = new Map();
+
     traverse(this._ast, {
       AssignmentExpression: (path) => {
         const { node } = path;
@@ -242,6 +239,12 @@ class Deobfuscator {
           (t.isBinaryExpression(node.right.body.body[0].argument) ||
             t.isCallExpression(node.right.body.body[0].argument))
         ) {
+          // We find proxy function and fill in scopeIdToBinaryOpPath(scopeUID -> Map<key, pathToBinaryNode>).
+          // Key is created using the ID name and the property value(n['xyz'] = function ... -> key = n_xyz).
+          // In this way we get a structure where each scope is mapped to a bindings.
+          // In the next traversal, if we come across the use of the proxy function,
+          // we will be able to get the right node by key to know which binary operator is being used.
+
           const proxyFnIdentifier = node.left.object.name;
           const proxyFnBinding = path.scope.getBinding(proxyFnIdentifier);
 
@@ -262,6 +265,11 @@ class Deobfuscator {
             );
           }
 
+          // Cloudflare does something like that:
+          // m['xyz'] = function ... ;
+          // n = m;
+          // n['xyz'](a, b)
+          // So we need to find all the assignments and fill them with the right keys
           proxyFnBinding.referencePaths.forEach((refPath) => {
             if (
               t.isAssignmentExpression(refPath.parentPath.node) &&
@@ -273,8 +281,7 @@ class Deobfuscator {
               const key = `${refPath.parentPath.node.left.name}_${
                 node.left.property.value || node.left.property.name
               }`;
-              // if (bindingToKey.has(refBinding)) return;
-              // keyToBinding.set(key, refBinding);
+
               scopeIdToBinaryOpPath[refBinding.scope.uid].set(
                 key,
                 node.right.body.body[0].argument
@@ -296,15 +303,11 @@ class Deobfuscator {
         if (!binding) return;
 
         const bindingScopeId = binding.scope.uid;
-        if (!bindingScopeId) return;
-
-        if (!scopeIdToBinaryOpPath[bindingScopeId]) return;
+        if (!bindingScopeId || !scopeIdToBinaryOpPath[bindingScopeId]) return;
 
         const bindingPropName =
           node.callee.property.value || node.callee.property.name;
         const key = `${bindingName}_${bindingPropName}`;
-
-        // console.log(scopeIdToBinaryOpPath[bindingScopeId].get(key));
 
         const binaryOpPath = scopeIdToBinaryOpPath[bindingScopeId].get(key);
 
@@ -316,36 +319,111 @@ class Deobfuscator {
               node.arguments[1]
             )
           );
-        } else if (t.isCallExpression(binaryOpPath)) {
-          path.replaceWith(
-            t.CallExpression(node.arguments[0], [
-              ...node.arguments.filter((el, ix) => ix != 0),
-            ])
-          );
-        }
+        } /* else if (t.isCallExpression(binaryOpPath)) {
+          // TODO: simplify function calls
+          // path.replaceWith(
+          //   t.CallExpression(node.arguments[0], [
+          //     ...node.arguments.filter((el, ix) => ix != 0),
+          //   ])
+          // );
+        } */
       },
     });
   }
 
-  _simplifyProxyFunctionsCalls() {}
+  _replaceObjectConstants() {
+    const scopeIdToConstants = {};
 
-  _test() {
     traverse(this._ast, {
-      MemberExpression: (path) => {
-        if (path.node.property.name === 'CAVHW') {
-          // console.log(path.scope.getBinding('n').scope.uid);
-          // console.log(Object.getOwnPropertyNames(path.scope.getBinding('m')));
+      AssignmentExpression: (path) => {
+        const { node } = path;
 
-          // const binding = path.scope.getBinding('m');
+        if (t.isMemberExpression(node.left) && t.isLiteral(node.right) && node.left.object) {
+          const constantIdentifier = node.left.object.name;
+          if (!constantIdentifier) return;
 
-          // binding.referencePaths.forEach((refPath) => {
-          //   if (t.isAssignmentExpression(refPath.parentPath.node))
-          //     console.log(refPath.parentPath.node);
-          // });
-          path.stop();
+          const constantBinding = path.scope.getBinding(constantIdentifier);
+          if (!constantBinding) return;
+
+          const key = `${node.left.object.name}_${
+            node.left.property.value || node.left.property.name
+          }`;
+
+          if (scopeIdToConstants[constantBinding.scope.uid]) {
+            scopeIdToConstants[constantBinding.scope.uid].set(
+              key,
+              node.right.value
+            );
+          } else {
+            scopeIdToConstants[constantBinding.scope.uid] = new Map();
+            scopeIdToConstants[constantBinding.scope.uid].set(
+              key,
+              node.right.value
+            );
+          }
+
+          constantBinding.referencePaths.forEach((refPath) => {
+            if (
+              t.isAssignmentExpression(refPath.parentPath.node) &&
+              t.isIdentifier(refPath.parentPath.node.left)
+            ) {
+              const refBinding = refPath.scope.getBinding(
+                refPath.parentPath.node.left.name
+              );
+              const key = `${refPath.parentPath.node.left.name}_${
+                node.left.property.value || node.left.property.name
+              }`;
+
+              scopeIdToConstants[refBinding.scope.uid].set(
+                key,
+                node.right.value
+              );
+            }
+          });
+
         }
       },
     });
+
+    traverse(this._ast, {
+      MemberExpression: path => {
+        const { node } = path;
+        if (!node.object) return;
+
+        const bindingName = node.object.name;
+        if (!bindingName) return;
+
+        const binding = path.scope.getBinding(bindingName);
+        if (!binding) return;
+
+        const bindingScopeId = binding.scope.uid;
+        if (!bindingScopeId || !scopeIdToConstants[bindingScopeId]) return;
+
+        const bindingPropName =
+          node.property.value || node.property.name;
+        const key = `${bindingName}_${bindingPropName}`;
+        console.log(bindingPropName, t.isLVal(node))
+        const constantValue = scopeIdToConstants[bindingScopeId].get(key);
+        if (!constantValue) return;
+
+        // It's terrible hack... Sorry...
+        // But the replaceWith method knows better
+        // which nodes can be replaced and which can't.
+        // (Much depends on the value category(lvalue/rvalue).
+        // Checking it yourself is too much trouble)
+        try {
+          switch(typeof constantValue) {
+            case 'string':
+              path.replaceWith(t.stringLiteral(constantValue));
+              break;
+            case 'number':
+              path.replaceWith(t.numericLiteral(constantValue));
+              break;
+          }
+        } catch(e) {}
+
+      }
+    })
   }
 }
 
