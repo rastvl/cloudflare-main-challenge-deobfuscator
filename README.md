@@ -32,7 +32,7 @@ n = m;
 return a + b;
 ```
 3) Simplifying the object props access:
-from
+from:
 ```js
 var e['foo'] = '300',
 g = e;
@@ -62,9 +62,8 @@ return bar;
 
 5) Main control flow flattening conversion
 
-The code is dirty, there will be no refactoring, sorry
 
-##usage
+## usage
 ```
 git clone https://github.com/rastvl/cloudflare-main-challenge-deobfuscator.git
 cd cloudflare-main-challenge-deobfuscator
