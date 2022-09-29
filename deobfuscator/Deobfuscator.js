@@ -13,17 +13,6 @@ const {
   no_chl_done,
 } = require('./utils/constants');
 
-var console_log = console.log;
-let counter = 1;
-console.log = function (args) {
-  console_log.apply(this, arguments);
-  console_log(
-    '==========================================================================================================================',
-    counter
-  );
-  ++counter;
-};
-
 class Deobfuscator {
   constructor(sourceCode) {
     this._code = sourceCode;
