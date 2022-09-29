@@ -2,7 +2,7 @@
 A series of ast-manipulations to create more readable cloudflare script code.
 
 ## Features
-1) Conversion of all strings:
+1) Conversion of all strings:  
 from:
 ```js
 return g[b(_[72])][b(_[10])][b(_[74])][b(_[119])](h)===b(_[137])
@@ -12,7 +12,7 @@ to:
 return g.Object.prototype.toString.call(h) === "[object Array]";
 ```
 
-2) Simplifying the function call:
+2) Simplifying the function call:  
 from:
 ```js
 var m['foo'] = function (a,b) {
@@ -31,7 +31,7 @@ n = m;
 
 return a + b;
 ```
-3) Simplifying the object props access:
+3) Simplifying the object props access:  
 from:
 ```js
 var e['foo'] = '300',
@@ -48,7 +48,7 @@ g = e;
 F.width = '300'
 ```
 
-4) Simplifying logical branches:
+4) Simplifying logical branches:  
 from:
 ```js
 if ('foo' === 'foo') {
@@ -60,7 +60,7 @@ to:
 return bar;
 ```
 
-5) Main control flow flattening conversion
+5) Main control flow flattening conversion  
 
 
 ## usage
