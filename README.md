@@ -73,3 +73,10 @@ Paste the main challenge script into `input/cf-main-challenge.js` and then:
 ```
 npm run start
 ```
+
+## ...
+In fact, this is all you need to understand the cloudflare code and prepare your environment to run it automatically. The code is a bit messy, there will be no refactoring)
+
+## How to get main challenge script
+The easiest way to get the "main challenge" using devtools is to constantly pause the script execution on the cloudflare page until you come across the desired script:
+![devtools](./images/devtools.gif)
