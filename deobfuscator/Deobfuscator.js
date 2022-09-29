@@ -7,6 +7,10 @@ const vm = require('node:vm');
 const {
   MAIN_ARRAY_NAME,
   SHUFFLE_ARRAY_FUNCTION_ARGS_LENGTH,
+  MAIN_FOR_STATEMENT_TEST,
+  chl_done_ref,
+  chl_done_no_ref,
+  no_chl_done,
 } = require('./utils/constants');
 
 var console_log = console.log;
@@ -38,6 +42,7 @@ class Deobfuscator {
 
     this._transformLogicalBranches();
 
+    this._getRightCffOrder();
     return generate(this._ast).code;
   }
 
@@ -65,7 +70,7 @@ class Deobfuscator {
     if (this._mainArray.length === 0) {
       this._getMainArray();
     }
-
+    console.log('replacings strings 1/2...');
     traverse(this._ast, {
       MemberExpression: (path) => {
         const { node } = path;
@@ -152,7 +157,7 @@ class Deobfuscator {
 
   _replaceInnerString() {
     const scopeIdToArray = new Map();
-
+    console.log('replacings strings 2/2...');
     traverse(this._ast, {
       CallExpression: (path) => {
         const { node } = path;
@@ -230,6 +235,8 @@ class Deobfuscator {
 
   _replaceProxyFunctions() {
     const scopeIdToBinaryOpPath = {};
+
+    console.log('Simplifying proxy functions...');
 
     traverse(this._ast, {
       AssignmentExpression: (path) => {
@@ -340,6 +347,8 @@ class Deobfuscator {
   _replaceObjectConstants() {
     const scopeIdToConstants = {};
 
+    console.log('Simplifying proxy constants...');
+
     traverse(this._ast, {
       AssignmentExpression: (path) => {
         const { node } = path;
@@ -438,13 +447,14 @@ class Deobfuscator {
   }
 
   _transformLogicalBranches() {
+    console.log('Transforming logical branches...');
     traverse(this._ast, {
       'ConditionalExpression|IfStatement': (path) => {
         const { node } = path;
         let { consequent } = node;
         let { alternate } = node;
 
-        let testNodePath = path.get('test');
+        const testNodePath = path.get('test');
         const testNodeResult = testNodePath.evaluateTruthy();
 
         if (testNodeResult === undefined) return;
@@ -466,6 +476,134 @@ class Deobfuscator {
         }
       },
     });
+  }
+
+  _getAllMainCases() {
+    let caseToPath = new Map();
+
+    traverse(this._ast, {
+      SwitchCase: (path) => {
+        const { node } = path;
+        if (
+          t.isForStatement(path.parentPath.parentPath.node) &&
+          path.parentPath.parentPath.node.test.value === MAIN_FOR_STATEMENT_TEST
+        ) {
+          if (node.test) {
+            caseToPath.set(
+              node.test.value || node.test.name || 'emptyKey',
+              path
+            );
+          }
+        }
+      },
+    });
+
+    return caseToPath;
+  }
+
+  _getCffPathType(path) {
+    let type;
+
+    path.scope.traverse(
+      path.node,
+      {
+        FunctionExpression: (path_) => {
+          const chlDoneBinding = path_.scope.getBinding('chl_done');
+          if (!chlDoneBinding) return; // Я бы добавил path.stop() ибо функция нужная только одна и она в самом начале
+          type = chlDoneBinding.references ? chl_done_ref : chl_done_no_ref;
+        },
+      },
+      path.scope,
+      path.parentPath
+    );
+
+    return type === undefined ? no_chl_done : type;
+  }
+
+  _getRightCffOrder() {
+    const mainCases = this._getAllMainCases();
+    const cffRightOrderPaths = [];
+
+    // CFF starts from key = 'undefined'
+    let cffState = 'undefined';
+
+    while (cffState !== undefined) {
+      // Get path for CFFState
+      const cffPath = mainCases.get(cffState);
+
+
+      // Another routine for finding assignments like _['xyz'] = ...
+      // Nothing complicated, just look at the AST
+      const AssignmentExpressionVisitor = {
+        AssignmentExpression: (path) => {
+          const { node } = path;
+
+          if (
+            t.isMemberExpression(node.left) &&
+            node.left.object.name === MAIN_ARRAY_NAME
+          ) {
+            const nextKey =
+              node.right.value !== '' ? node.right.value : 'emptyKey';
+            cffRightOrderPaths.push(mainCases.get(nextKey));
+            cffState = nextKey;
+            path.stop();
+          }
+        },
+      }
+
+      switch (this._getCffPathType(cffPath)) {
+        case chl_done_ref:
+          cffPath.scope.traverse(
+            cffPath.node.consequent[0].expression.arguments[0],
+            AssignmentExpressionVisitor,
+            cffPath.scope,
+            cffPath.parentPath
+          );
+          break;
+        case chl_done_no_ref:
+          cffPath.node.consequent.some((node) => {
+            if (
+              node.expression &&
+              t.isAssignmentExpression(node.expression) &&
+              t.isMemberExpression(node.expression.left) &&
+              node.expression.left.object.name === MAIN_ARRAY_NAME
+            ) {
+              const nextKey =
+                node.expression.right.value !== ''
+                  ? node.expression.right.value
+                  : 'emptyKey';
+
+              cffRightOrderPaths.push(mainCases.get(nextKey));
+              cffState = nextKey;
+              return;
+            }
+          });
+          break;
+        case no_chl_done:
+          const currentCffState = cffState;
+          cffPath.scope.traverse(
+            cffPath.node,
+            AssignmentExpressionVisitor,
+            cffPath.scope,
+            cffPath.parentPath
+          );
+
+          if (currentCffState === cffState) {
+            cffState = undefined;
+          }
+
+          break;
+        default:
+          throw Error('Unknown path type');
+      }
+    }
+
+  }
+
+  _simplifyMainCFF() {
+    const rightOrder = this._getRightCffOrder;
+
+
   }
 }
 
