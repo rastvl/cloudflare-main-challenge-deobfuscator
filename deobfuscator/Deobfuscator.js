@@ -392,6 +392,8 @@ class Deobfuscator {
               t.isAssignmentExpression(refPath.parentPath.node) &&
               t.isIdentifier(refPath.parentPath.node.left)
             ) {
+
+              // ctrl+C ctrl+V... Sorry
               const refBinding = refPath.scope.getBinding(
                 refPath.parentPath.node.left.name
               );
@@ -399,10 +401,18 @@ class Deobfuscator {
                 node.left.property.value || node.left.property.name
               }`;
 
-              scopeIdToConstants[refBinding.scope.uid].set(
-                key,
-                node.right.value
-              );
+              if (scopeIdToConstants[refBinding.scope.uid]) {
+                scopeIdToConstants[refBinding.scope.uid].set(
+                  key,
+                  node.right.value
+                );
+              } else {
+                scopeIdToConstants[refBinding.scope.uid] = new Map();
+                scopeIdToConstants[refBinding.scope.uid].set(
+                  key,
+                  node.right.value
+                );
+              }
             }
           });
         }
