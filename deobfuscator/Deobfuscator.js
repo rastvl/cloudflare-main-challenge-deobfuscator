@@ -21,6 +21,8 @@ class Deobfuscator {
   }
 
   deobfuscate() {
+    this._evaluateBinaryPaths();
+
     this._replaceStrings();
 
     this._replaceProxyFunctions();
@@ -33,7 +35,9 @@ class Deobfuscator {
 
     this._convertBracketToDot();
 
-    const output = this._getCodeWithoutCff();
+    // const output = this._getCodeWithoutCff();
+
+    const output = generate(this._ast).code;
 
     return beautify(output, {
       indent_size: 2,
@@ -80,11 +84,12 @@ class Deobfuscator {
         }
       },
     });
-    this._replaceInnerString();
+
+    this._replaceInnerStrings();
   }
 
   static _getFirstBindingAssignment(binding) {
-    let scope = binding.scope;
+    let scope = binding.scope.parent;
     let resultPath;
 
     traverse(
@@ -109,14 +114,14 @@ class Deobfuscator {
     return resultPath;
   }
 
-  _getInnerArray(path, scopeData) {
-    path.scope.traverse(path.scope.block, {
+  _setInnerArray(scope, scopeData) {
+    scope.traverse(scope.block, {
       CallExpression: (path_) => {
         const node_ = path_.node;
         if (
           node_.callee &&
           t.isMemberExpression(node_.callee) &&
-          !node_.callee.computed &&
+          // !node_.callee.computed &&
           t.isStringLiteral(node_.callee.object) &&
           t.isIdentifier(node_.callee.property) &&
           node_.callee.property.name === 'split'
@@ -126,103 +131,132 @@ class Deobfuscator {
           path_.stop();
         }
       },
-    });
+    }
+    );
   }
 
-  _shuffleInnerArray(path, arrayIdentifierName, scopeData) {
-    let shuffleIndex;
-    path.scope.traverse(path.scope.block, {
+  _shuffleInnerArray(scope, scopeData) {
+    const shuffleArray = (shuffleIndex, offset, compExpr) => {
+      const getString = (index) => {
+        return scopeData.array[index - offset];
+      };
+
+      scopeData.getString = getString;
+
+      // compExpr = compExpr.replaceAll(`${bindingFunctionName}(`, 'getString(')
+      compExpr = compExpr.replaceAll(/parseint\(\w+\(/ig, 'parseInt(getString(');
+
+      eval(`
+        while(true) {
+          try {
+            const f = ${compExpr};
+            if (f === ${shuffleIndex}) break;
+            else scopeData.array.push(scopeData.array.shift());
+          } catch(e) {
+            scopeData.array.push(scopeData.array.shift());
+          }
+        }
+      `);
+    };
+
+    let shuffleIndex, offset, compExpr;
+
+    scope.traverse(scope.block, {
       CallExpression: (path_) => {
         const node_ = path_.node;
-
         if (
           node_.arguments.length === SHUFFLE_ARRAY_FUNCTION_ARGS_LENGTH &&
           t.isNumericLiteral(node_.arguments[1]) &&
           t.isIdentifier(node_.arguments[0]) &&
-          node_.arguments[0].name === arrayIdentifierName
+          node_.arguments[0].name === 'a'
         ) {
-          shuffleIndex = node_.arguments[1].value + 1;
+          shuffleIndex = node_.arguments[1].value; // + 1; // + 1?
+          path_.stop();
+        }
+      }
+    });
 
-          // ShuffleArray
-          for (; --shuffleIndex; scopeData.array.push(scopeData.array.shift()));
+    scope.traverse(scope.block, {
+      ReturnStatement: (path_) => {
+        const node_ = path_.node;
+        if (
+          node_.argument &&
+          t.isSequenceExpression(node_.argument) &&
+          t.isAssignmentExpression(node_.argument.expressions[0]) &&
+          t.isBinaryExpression(node_.argument.expressions[0].right) &&
+          node_.argument.expressions[0].right.operator === '-' &&
+          !isNaN(node_.argument.expressions[0].right.right.value)
+        ) {
+          offset = node_.argument.expressions[0].right.right.value;
+          path_.stop();
         }
       },
     });
+
+    scope.traverse(scope.block, {
+      IfStatement: (path_) => {
+        const node_ = path_.node;
+        if (
+          t.isSequenceExpression(node_.test) &&
+          t.isAssignmentExpression(node_.test.expressions[0]) &&
+          t.isBinaryExpression(node_.test.expressions[0].right) &&
+          t.isBinaryExpression(node_.test.expressions[0].right.left) &&
+          t.isBinaryExpression(node_.test.expressions[0].right.left.left)
+        ) {
+          compExpr = generate(node_.test.expressions[0].right).code;
+          path_.stop();
+        }
+      }
+    });
+
+    shuffleArray(shuffleIndex, offset, compExpr);
+
   }
 
-  _replaceInnerString() {
-    const scopeIdToArray = new Map();
+  _findScopeUid(path, scopeData) {
+    let scope = path.scope;
+    while(true) {
+      this._setInnerArray(scope, scopeData);
+      if (scopeData.array.length === 0) {
+        scope = scope.parent;
+      } else {
+        break;
+      }
+    }
+    return scope;
+  }
+
+  _replaceInnerStrings() {
+    const scopeUidToData = new Map();
     console.log('replacings strings 2/2...');
+
     traverse(this._ast, {
-      CallExpression: (path) => {
+      MemberExpression: (path) => {
         const { node } = path;
-        if (
-          node.arguments.length === 1 &&
-          t.isStringLiteral(node.arguments[0]) &&
-          node.arguments[0].value.startsWith('0x')
+        if (t.isCallExpression(node.property) &&
+          node.property.arguments.length === 1 &&
+          t.isNumericLiteral(node.property.arguments[0])
         ) {
-          // There is no explicit reference to the original array in the script.
-          // Instead, it refers to a function that returns the array element by index,
-          // applying some offset (default is 0). We first need to find this function,
-          // then figure out what array it works with, take that array, shuffle it,
-          // and only then replace all the strings
-          if (scopeIdToArray.has(path.scope.uid)) {
-            const scopeData = scopeIdToArray.get(path.scope.uid);
-            path.replaceWith(
-              t.stringLiteral(
-                scopeData.getString(parseInt(node.arguments[0].value, 16))
-              )
-            );
-          }
-
-          // Get the function name
-          const bindingFunctionName = node.callee.name;
-
-          // Finding a binding of "getStringFromArray" function
-          const bindingFunctionScope = path.scope;
-          const bindingFunction =
-            bindingFunctionScope.getBinding(bindingFunctionName);
-
-          // Get the path of assigned function
-          const bindingAssignmentPath =
-            Deobfuscator._getFirstBindingAssignment(bindingFunction);
-
-          // Get the array identifier name
-          let arrayIdentifierName;
-          bindingAssignmentPath.scope.traverse(bindingAssignmentPath.node, {
-            MemberExpression: (path_) => {
-              arrayIdentifierName = path_.node.object.name;
-            },
-          });
-
-          // TODO: Get array index offset. Default = 0
+          let callNode = node.property;
 
           const scopeData = {
             array: [],
-            arrayIndexOffset: 0,
-            getString(index) {
-              return this.array[index + this.arrayIndexOffset];
-            },
           };
 
-          // Need to find the string and the delimiter.
-          // All this is in the scope along with bindingAssignmentPath
-          this._getInnerArray(bindingAssignmentPath, scopeData);
+          const currentScope = this._findScopeUid(path, scopeData);
 
-          // We need to shuffle our array
-          // To do this we need to find the shuffle index
+          if (scopeUidToData.has(currentScope.uid)) {
+            const scopeData = scopeUidToData.get(currentScope.uid);
+            node.property = t.stringLiteral(scopeData.getString(parseInt(callNode.arguments[0].value)));
+          }
+
           this._shuffleInnerArray(
-            bindingAssignmentPath,
-            arrayIdentifierName,
+            currentScope,
             scopeData
           );
 
-          scopeIdToArray.set(path.scope.uid, scopeData);
-          path.replaceWith(
-            t.stringLiteral(
-              scopeData.getString(parseInt(node.arguments[0].value, 16))
-            )
-          );
+          scopeUidToData.set(currentScope.uid, scopeData);
+          node.property = t.stringLiteral(scopeData.getString(parseInt(callNode.arguments[0].value)));
         }
       },
     });
@@ -381,7 +415,6 @@ class Deobfuscator {
               t.isAssignmentExpression(refPath.parentPath.node) &&
               t.isIdentifier(refPath.parentPath.node.left)
             ) {
-
               // ctrl+C ctrl+V... Sorry
               const refBinding = refPath.scope.getBinding(
                 refPath.parentPath.node.left.name
@@ -483,144 +516,28 @@ class Deobfuscator {
     });
   }
 
-  _getAllMainCases() {
-    let caseToPath = new Map();
-
+  _evaluateBinaryPaths() {
     traverse(this._ast, {
-      SwitchCase: (path) => {
+      BinaryExpression(path) {
         const { node } = path;
-        if (
-          t.isForStatement(path.parentPath.parentPath.node) &&
-          path.parentPath.parentPath.node.test.value === MAIN_FOR_STATEMENT_TEST
-        ) {
-          if (node.test) {
-            caseToPath.set(
-              node.test.value || node.test.name || 'emptyKey',
-              path
-            );
-          }
+        if (t.isNumericLiteral(node.left) && t.isNumericLiteral(node.right)) {
+          path.replaceWith(t.numericLiteral(path.evaluate().value));
         }
       },
     });
 
-    return caseToPath;
-  }
-
-  _getCffPathType(path) {
-    let type;
-
-    path.scope.traverse(
-      path.node,
-      {
-        FunctionExpression: (path_) => {
-          const chlDoneBinding = path_.scope.getBinding('chl_done');
-          if (!chlDoneBinding) return; // Я бы добавил path.stop() ибо функция нужная только одна и она в самом начале
-          type = chlDoneBinding.references ? chl_done_ref : chl_done_no_ref;
-        },
+    traverse(this._ast, {
+      SequenceExpression(path) {
+        const { node } = path;
+        let isAllNumbers = true;
+        node.expressions.forEach((expr) => {
+          if (!t.isNumericLiteral(expr)) isAllNumbers = false;
+        });
+        if (isAllNumbers) {
+          path.replaceWith(t.numericLiteral(path.evaluate().value));
+        }
       },
-      path.scope,
-      path.parentPath
-    );
-
-    return type === undefined ? no_chl_done : type;
-  }
-
-  _getRightCffOrder() {
-    const mainCases = this._getAllMainCases();
-    const cffRightOrderPaths = [];
-
-    // CFF starts from key = 'undefined'
-    let cffState = 'undefined';
-
-    while (cffState !== undefined) {
-      // Get path for CFFState
-      const cffPath = mainCases.get(cffState);
-
-      // Another routine for finding assignments like _['xyz'] = ...
-      // Nothing complicated, just look at the AST
-      const AssignmentExpressionVisitor = {
-        AssignmentExpression: (path) => {
-          const { node } = path;
-
-          if (
-            t.isMemberExpression(node.left) &&
-            node.left.object.name === MAIN_ARRAY_NAME
-          ) {
-            const nextKey =
-              node.right.value !== '' ? node.right.value : 'emptyKey';
-            cffRightOrderPaths.push(mainCases.get(nextKey));
-            cffState = nextKey;
-            path.stop();
-          }
-        },
-      };
-
-      switch (this._getCffPathType(cffPath)) {
-        case chl_done_ref:
-          cffPath.scope.traverse(
-            cffPath.node.consequent[0].expression.arguments[0],
-            AssignmentExpressionVisitor,
-            cffPath.scope,
-            cffPath.parentPath
-          );
-          break;
-        case chl_done_no_ref:
-          cffPath.node.consequent.some((node) => {
-            if (
-              node.expression &&
-              t.isAssignmentExpression(node.expression) &&
-              t.isMemberExpression(node.expression.left) &&
-              node.expression.left.object.name === MAIN_ARRAY_NAME
-            ) {
-              const nextKey =
-                node.expression.right.value !== ''
-                  ? node.expression.right.value
-                  : 'emptyKey';
-
-              cffRightOrderPaths.push(mainCases.get(nextKey));
-              cffState = nextKey;
-              return;
-            }
-          });
-          break;
-        case no_chl_done:
-          const currentCffState = cffState;
-          cffPath.scope.traverse(
-            cffPath.node,
-            AssignmentExpressionVisitor,
-            cffPath.scope,
-            cffPath.parentPath
-          );
-
-          if (currentCffState === cffState) {
-            cffState = undefined;
-          }
-
-          break;
-        default:
-          throw Error('Unknown path type');
-      }
-    }
-
-    return cffRightOrderPaths;
-  }
-
-  _getCodeWithoutCff() {
-    console.log('Getting the code without the CFF...');
-
-    const rightOrder = this._getRightCffOrder();
-    let codeWithoutCff = '';
-
-    rightOrder.forEach((casePath) => {
-      const arrNodes = casePath.node.consequent.filter(
-        (cons) => !(t.isReturnStatement(cons) || t.isBreakStatement(cons))
-      );
-      arrNodes.forEach((el) => {
-        codeWithoutCff += generate(el).code;
-      });
     });
-
-    return codeWithoutCff;
   }
 
   _convertBracketToDot() {
@@ -645,6 +562,149 @@ class Deobfuscator {
       },
     });
   }
+
+  // _getAllMainCases() {
+  //   let caseToPath = new Map();
+
+  //   traverse(this._ast, {
+  //     SwitchCase: (path) => {
+  //       const { node } = path;
+  //       if (
+  //         t.isForStatement(path.parentPath.parentPath.node) &&
+  //         path.parentPath.parentPath.node.test.value === MAIN_FOR_STATEMENT_TEST
+  //       ) {
+  //         if (node.test) {
+  //           caseToPath.set(
+  //             node.test.value || node.test.name || 'emptyKey',
+  //             path
+  //           );
+  //         }
+  //       }
+  //     },
+  //   });
+
+  //   return caseToPath;
+  // }
+
+
+
+  // _getCffPathType(path) {
+  //   let type;
+
+  //   path.scope.traverse(
+  //     path.node,
+  //     {
+  //       FunctionExpression: (path_) => {
+  //         const chlDoneBinding = path_.scope.getBinding('chl_done');
+  //         if (!chlDoneBinding) return;
+  //         type = chlDoneBinding.references ? chl_done_ref : chl_done_no_ref;
+  //       },
+  //     },
+  //     path.scope,
+  //     path.parentPath
+  //   );
+
+  //   return type === undefined ? no_chl_done : type;
+  // }
+
+  // _getRightCffOrder() {
+  //   const mainCases = this._getAllMainCases();
+  //   const cffRightOrderPaths = [];
+
+  //   // CFF starts from key = 'undefined'
+  //   let cffState = 'undefined';
+
+  //   while (cffState !== undefined) {
+  //     // Get path for CFFState
+  //     const cffPath = mainCases.get(cffState);
+
+  //     // Another routine for finding assignments like _['xyz'] = ...
+  //     // Nothing complicated, just look at the AST
+  //     const AssignmentExpressionVisitor = {
+  //       AssignmentExpression: (path) => {
+  //         const { node } = path;
+
+  //         if (
+  //           t.isMemberExpression(node.left) &&
+  //           node.left.object.name === MAIN_ARRAY_NAME
+  //         ) {
+  //           const nextKey =
+  //             node.right.value !== '' ? node.right.value : 'emptyKey';
+  //           cffRightOrderPaths.push(mainCases.get(nextKey));
+  //           cffState = nextKey;
+  //           path.stop();
+  //         }
+  //       },
+  //     };
+
+  //     switch (this._getCffPathType(cffPath)) {
+  //       case chl_done_ref:
+  //         cffPath.scope.traverse(
+  //           cffPath.node.consequent[0].expression.arguments[0],
+  //           AssignmentExpressionVisitor,
+  //           cffPath.scope,
+  //           cffPath.parentPath
+  //         );
+  //         break;
+  //       case chl_done_no_ref:
+  //         cffPath.node.consequent.some((node) => {
+  //           if (
+  //             node.expression &&
+  //             t.isAssignmentExpression(node.expression) &&
+  //             t.isMemberExpression(node.expression.left) &&
+  //             node.expression.left.object.name === MAIN_ARRAY_NAME
+  //           ) {
+  //             const nextKey =
+  //               node.expression.right.value !== ''
+  //                 ? node.expression.right.value
+  //                 : 'emptyKey';
+
+  //             cffRightOrderPaths.push(mainCases.get(nextKey));
+  //             cffState = nextKey;
+  //             return;
+  //           }
+  //         });
+  //         break;
+  //       case no_chl_done:
+  //         const currentCffState = cffState;
+  //         cffPath.scope.traverse(
+  //           cffPath.node,
+  //           AssignmentExpressionVisitor,
+  //           cffPath.scope,
+  //           cffPath.parentPath
+  //         );
+
+  //         if (currentCffState === cffState) {
+  //           cffState = undefined;
+  //         }
+
+  //         break;
+  //       default:
+  //         throw Error('Unknown path type');
+  //     }
+  //   }
+
+  //   return cffRightOrderPaths;
+  // }
+
+  // _getCodeWithoutCff() {
+  //   console.log('Getting the code without the CFF...');
+
+  //   const rightOrder = this._getRightCffOrder();
+  //   let codeWithoutCff = '';
+
+  //   rightOrder.forEach((casePath) => {
+  //     const arrNodes = casePath.node.consequent.filter(
+  //       (cons) => !(t.isReturnStatement(cons) || t.isBreakStatement(cons))
+  //     );
+  //     arrNodes.forEach((el) => {
+  //       codeWithoutCff += generate(el).code;
+  //     });
+  //   });
+
+  //   return codeWithoutCff;
+  // }
+
 }
 
 module.exports = Deobfuscator;
